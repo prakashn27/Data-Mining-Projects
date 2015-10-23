@@ -1,0 +1,58 @@
+› python apriori_new.py -f association-rule-test-data.txt -s 0.3 -c 0.6
+len of item set is 204 and transaction is 100
+Number of items in 1 item set is 196
+Number of items in 2 item set is 5340
+Number of items in 3 item set is 5287
+Number of items in 4 item set is 1518
+Number of items in 5 item set is 438
+Number of items in 6 item set is 88
+Number of items in 7 item set is 11
+Number of items in 8 item set is 1
+Number of items in 9 item set is 0
+Total number of freq item sets is 12879
+value of k is 10
+length of largeSet is 8
+number of freq itemSet is 1
+
+› python apriori_new.py -f association-rule-test-data.txt -s 0.4 -c 0.6
+len of item set is 204 and transaction is 100
+Number of items in 1 item set is 167
+Number of items in 2 item set is 753
+Number of items in 3 item set is 149
+Number of items in 4 item set is 7
+Number of items in 5 item set is 1
+Number of items in 6 item set is 0
+Total number of freq item sets is 1077
+value of k is 7
+length of largeSet is 5
+number of freq itemSet is 1
+
+› python apriori_new.py -f association-rule-test-data.txt -s 0.5 -c 0.6
+len of item set is 204 and transaction is 100
+Number of items in 1 item set is 109
+Number of items in 2 item set is 63
+Number of items in 3 item set is 2
+Number of items in 4 item set is 0
+Total number of freq item sets is 174
+value of k is 5
+length of largeSet is 3
+number of freq itemSet is 2
+
+› python apriori_new.py -f association-rule-test-data.txt -s 0.6 -c 0.6
+len of item set is 204 and transaction is 100
+Number of items in 1 item set is 34
+Number of items in 2 item set is 2
+Number of items in 3 item set is 0
+Total number of freq item sets is 36
+value of k is 4
+length of largeSet is 2
+number of freq itemSet is 2
+
+› python apriori_new.py -f association-rule-test-data.txt -s 0.7 -c 0.6
+len of item set is 204 and transaction is 100
+Number of items in 1 item set is 7
+Number of items in 2 item set is 0
+Total number of freq item sets is 7
+value of k is 3
+length of largeSet is 1
+number of freq itemSet is 7
