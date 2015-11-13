@@ -49,8 +49,8 @@ def get_new_centroids(clusters):
 
 def get_options():
     par = OptionParser()
-    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/iyer.txt")
-    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=10, type='int')
+    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
+    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=5, type='int')
     (options, args) = par.parse_args()
     return options
 
@@ -77,6 +77,7 @@ def run():
     count = 0
     # print len(old_centroids), len(expr_value)
     while True:
+        count += 1
         clusters = {}
         cluster_and_gene_id = {}
         # print sys.float_info.max
@@ -112,7 +113,7 @@ def run():
         got_result = True
         for i in range(len(new_centroids)):
             if new_centroids[i] != old_centroids[i]:
-                got_resultflag = False
+                got_result = False
                 break
         if not got_result:
             old_centroids = new_centroids

@@ -1,24 +1,33 @@
 from sys import float_info
 from optparse import OptionParser
 from math import sqrt, pow
+from matplotlib import pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+import numpy as np
 
 
 # get points from the text file
 def get_points(fname):
     expr_value = {}
+    map_of_clusters = {}
     with open(fname) as f:
         for line in f:
             spl = line.split()
             spl[-1] = spl[-1].replace("\r\n", "")
             gene_id = int(spl[0])
+            cluster = int(spl[1])
+            if cluster in map_of_clusters:
+                map_of_clusters[cluster].append(gene_id)
+            else:
+                map_of_clusters[cluster] = [gene_id]
             expressions = map(float, spl[2:])
             expr_value[gene_id] = expressions
-    return expr_value
+    return expr_value, map_of_clusters
 
 
 def get_options():
     par = OptionParser()
-    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/test.txt")
+    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
     par.add_option('-c', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=1, type='int')
     (options, args) = par.parse_args()
     return options
@@ -69,7 +78,7 @@ def update(dm, c1, c2, expr_value, merge_list):
 
 def run():
     options = get_options()
-    expr_value = get_points(options.input)
+    expr_value, map_of_true_clusters = get_points(options.input)
     no_of_clusters = options.no_of_clusters
     l = len(expr_value)
     distance_matrix = [[0 for col in range(l + 2)] for row in range(l + 2)]
@@ -98,61 +107,14 @@ def run():
                     min = distance_matrix[i][j]
                     cluster1 = i
                     cluster2 = j
-        # print cluster1, cluster2
-
-        # update(distanceMatrix,cluster1,cluster2,exprValue, mergeList);
-        print count
+        # print count
         count += 1
         update(distance_matrix, cluster1, cluster2, expr_value, merge_list)
-        # temp1 = []
-        # temp2 = []
-        # if cluster1 < cluster2:
-        #     for i in range(1, l + 1):
-        #         if distance_matrix[cluster1][i] > distance_matrix[cluster2][i]:
-        #             if cluster1 != i:
-        #                 distance_matrix[cluster1][i] = distance_matrix[cluster2][i]
-        #                 distance_matrix[i][cluster1] = distance_matrix[cluster2][i]
-        #             distance_matrix[cluster2][i] = float_info.max
-        #             distance_matrix[i][cluster2] = float_info.max
-        #
-        #     temp1 = merge_list[cluster1]
-        #     temp2 = merge_list[cluster2]
-        #     # print temp1, temp2, cluster1, cluster2
-        #     if temp2 is None:
-        #         print merge_list
-        #     if temp1 == []:
-        #         temp1.append(cluster1)
-        #     if temp2 == []:
-        #         temp2 = []
-        #         temp2.append(cluster2)
-        #     print temp1, "<--", temp2
-        #     temp1 = temp1 + temp2
-        #     merge_list[cluster1] = temp1
-        #     del merge_list[cluster2]
-        # elif cluster2 < cluster1:
-        #     for i in range(1, l + 1):
-        #         if distance_matrix[cluster1][i] > distance_matrix[cluster2][i]:
-        #             if cluster1 != i:
-        #                 distance_matrix[cluster2][i] = distance_matrix[cluster1][i]
-        #                 distance_matrix[i][cluster2] = distance_matrix[cluster1][i]
-        #             distance_matrix[cluster1][i] = float_info.max
-        #             distance_matrix[i][cluster1] = float_info.max
-        #     temp1 = merge_list.get(cluster1)
-        #     temp2 = merge_list.get(cluster2)
-        #     if temp1 == []:
-        #         temp1.append(cluster1)
-        #     if temp2 == []:
-        #         temp2.append(cluster2)
-        #     print temp2, "<--", temp1
-        #     temp2 = temp1 + temp2
-        #     merge_list[cluster2] = temp2
-        #     del merge_list[cluster1]
-        # break
     for i in merge_list:
         print i, ":", merge_list[i]
     # print merge_list
-    print len(merge_list[1])
     print "done"
+    print map_of_true_clusters
 
 
 if __name__ == "__main__":
