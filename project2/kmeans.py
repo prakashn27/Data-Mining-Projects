@@ -2,6 +2,7 @@ import sys
 import math
 from optparse import OptionParser
 
+
 # get points from the text file
 def get_points(fname):
     cluster_no = []
@@ -48,8 +49,8 @@ def get_new_centroids(clusters):
 
 def get_options():
     par = OptionParser()
-    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
-    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=5, type='int')
+    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/iyer.txt")
+    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=10, type='int')
     (options, args) = par.parse_args()
     return options
 
@@ -65,7 +66,7 @@ def run():
     # print len(cluster_no)
     # no_of_clusters = 5 #
     # TODO: get the gene_id from the user. for simplicity taking as first k values
-    gene_id_array = [1, 2, 3, 4, 5]
+    gene_id_array = range(1, no_of_clusters + 1)
 
     old_centroids = []
     for i in range(no_of_clusters):
