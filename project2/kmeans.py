@@ -72,7 +72,6 @@ def run():
     # print expr_value
     # print len(cluster_no)
     # no_of_clusters = 5 #
-    # TODO: get the gene_id from the user. for simplicity taking as first k values
     gene_id_array = range(1, no_of_clusters + 1)
 
     old_centroids = []
@@ -135,7 +134,8 @@ def run():
     output = []
     for i in cluster_and_gene_id:
         output.append(cluster_and_gene_id[i])
-
+    print "cluster and gene_id"
+    print cluster_and_gene_id
     # Validation
     # ====================================
     our_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]

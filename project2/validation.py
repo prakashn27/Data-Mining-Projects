@@ -1,13 +1,14 @@
+from __future__ import division
 import math
 
 
 def get_corrlation(distance_matrix, our_truth):
-    num = 0
-    num = den = meanD = meanO = 0.0
+    num = 0.0
+    meanD = meanO = 0.0
     for i in range(1, len(distance_matrix)):
         for j in range(1, len(distance_matrix[0])):
             meanD += distance_matrix[i][j]
-    meanD = meanD/ math.pow(len(distance_matrix), 2)
+    meanD = meanD / math.pow(len(distance_matrix), 2)
 
     for i in range(1, len(our_truth)):
         for j in range(1, len(our_truth[0])):
@@ -22,7 +23,7 @@ def get_corrlation(distance_matrix, our_truth):
             den1 += math.pow((distance_matrix[i][j] - meanD), 2)
             den2 += math.pow((our_truth[i][j] - meanD), 2)
 
-    return num/math.sqrt(den1 * den2)
+    return float(num)/math.sqrt(den1 * den2)
 
 
 def get_jaccard(ground_truth, our_truth):

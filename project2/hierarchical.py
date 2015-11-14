@@ -29,7 +29,7 @@ def get_points(fname):
 def get_options():
     par = OptionParser()
     par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
-    par.add_option('-c', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=1, type='int')
+    par.add_option('-c', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=5, type='int')
     (options, args) = par.parse_args()
     return options
 
