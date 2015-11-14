@@ -4,6 +4,7 @@ from math import sqrt, pow
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage
 import numpy as np
+import validation as v
 
 
 # get points from the text file
@@ -186,13 +187,52 @@ def run():
         r.append([np.array(merge_list[i])])
     # print merge_list
     print "done"
-    print map_of_true_clusters
-    print r
+    # print map_of_true_clusters
+    # print r
     # generate_graph(r)
-    print len(dendogram_list), count
-    print dendogram_list
-    print dendogram_matrix
-    generate_dendrogram(dendogram_matrix)
+    # print len(dendogram_list), count
+    # print dendogram_list
+    # print dendogram_matrix
+    # generate_dendrogram(dendogram_matrix)
+    output = []
+    for entry in merge_list:
+        output.append(merge_list[entry])
+
+    # Validation
+    # ====================================
+    our_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for a in output:
+        for i in range(len(a)):
+            for j in range(len(a)):
+                # print i, j, a
+                our_truth[a[i]][a[j]] = 1
+    # print "our truth"
+    # print our_truth
+
+    ground_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for entry in map_of_true_clusters:
+        temp = map_of_true_clusters[entry]
+        for i in range(len(temp)):
+            for j in range(len(temp)):
+                ground_truth[temp[i]][temp[j]] = 1
+    # print ground_truth
+
+    # construct the distance matrix
+    distance_matrix = [[0.0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for i in range(1, len(expr_value) + 1):
+        for j in range(1, len(expr_value) + 1):
+            if i != j:
+                list1 = expr_value[i]
+                list2 = expr_value[j]
+                distance_matrix[i][j] = v.find_distance(list1, list2)
+            else:
+                distance_matrix[i][j] = 0.0
+    jac = v.get_jaccard(ground_truth, our_truth)
+    cor = v.get_corrlation(distance_matrix, our_truth)
+
+    print "Jaccard Coefficient is ", jac
+    print "Correlation is ", cor
+
 
 if __name__ == "__main__":
     # generate_graph()
