@@ -1,22 +1,29 @@
 import sys
 import math
 from optparse import OptionParser
+import validation as v
 
 
 # get points from the text file
 def get_points(fname):
     cluster_no = []
     expr_value = {}
+    map_with_true_values = {}
     with open(fname) as f:
         for line in f:
             spl = line.split('\t')
             spl[-1] = spl[-1].replace("\r\n", "")
             gene_id = int(spl[0])
+            cluster = int(spl[1])
             expressions = map(float, spl[2:])
             expr_value[gene_id] = expressions
             cluster_no.append(0)
+            if cluster in map_with_true_values:
+                map_with_true_values[cluster].append(gene_id)
+            else:
+                map_with_true_values[cluster] = [gene_id]
     # cluster_no.append(0)
-    return expr_value, cluster_no
+    return expr_value, cluster_no, map_with_true_values
 
 
 def get_euclidean_distance(centroid, point):
@@ -61,7 +68,7 @@ def run():
 
     fname = options.input
     no_of_clusters = options.no_of_clusters
-    expr_value, cluster_no = get_points(fname)
+    expr_value, cluster_no, map_with_true_values = get_points(fname)
     # print expr_value
     # print len(cluster_no)
     # no_of_clusters = 5 #
@@ -125,6 +132,44 @@ def run():
             print cluster_and_gene_id
             break
     print "clusters are done"
+    output = []
+    for i in cluster_and_gene_id:
+        output.append(cluster_and_gene_id[i])
+
+    # Validation
+    # ====================================
+    our_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for a in output:
+        for i in range(len(a)):
+            for j in range(len(a)):
+                # print i, j, a
+                our_truth[a[i]][a[j]] = 1
+    # print "our truth"
+    # print our_truth
+
+    ground_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for entry in map_with_true_values:
+        temp = map_with_true_values[entry]
+        for i in range(len(temp)):
+            for j in range(len(temp)):
+                ground_truth[temp[i]][temp[j]] = 1
+    # print ground_truth
+
+    # construct the distance matrix
+    distance_matrix = [[0.0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
+    for i in range(1, len(expr_value) + 1):
+        for j in range(1, len(expr_value) + 1):
+            if i != j:
+                list1 = expr_value[i]
+                list2 = expr_value[j]
+                distance_matrix[i][j] = v.find_distance(list1, list2)
+            else:
+                distance_matrix[i][j] = 0.0
+    jac = v.get_jaccard(ground_truth, our_truth)
+    cor = v.get_corrlation(distance_matrix, our_truth)
+
+    print "Jaccard Coefficient is ", jac
+    print "Correlation is ", cor
 
 if __name__ == "__main__":
     run()
