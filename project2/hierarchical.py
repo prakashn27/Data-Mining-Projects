@@ -41,40 +41,103 @@ def get_euclidean_distance(centroid, point):
     return sqrt(sum_of_squares)
 
 
-def update(dm, c1, c2, expr_value, merge_list):
-    if c1 < c2:
-        for i in range(1, len(expr_value) + 1):
-            if dm[c1][i] > dm[c2][i]:
-                if c1 != i:
-                    dm[c1][i]=dm[c2][i]
-                    dm[i][c1]= dm[c2][i]
-            dm[c2][i] = dm[i][c2] = float_info.max
-        temp2 = merge_list[c2]
-        temp1 = merge_list[c1]
-        if len(temp1) == 0:
-            temp1.append(c1)
-        if len(temp2) == 0:
-            temp2.append(c2)
-        print merge_list.get(c1), "<-----", merge_list.get(c2)
-        merge_list[c1] = temp1 + temp2
-        del merge_list[c2]
-    elif c2 < c1:
-        for i in range(1, len(expr_value) + 1):
-            if dm[c2][i] > dm[c1][i]:
-                if c2 != i:
-                    dm[c2][i]=dm[c1][i]
-                    dm[i][c2]= dm[c1][i]
-            dm[c1][i] = dm[i][c1] = float_info.max
-        temp2 = merge_list[c2]
-        temp1 = merge_list[c1]
-        if len(temp1) == 0:
-            temp1.append(c1)
-        if len(temp2) == 0:
-            temp2.append(c2)
-        print merge_list.get(c2), "<---$$$--", merge_list.get(c1)
-        merge_list[c2] = temp2 + temp1
-        del merge_list[c1]
+def update(dm, c1, c2, expr_value, merge_list, dendrogram_list):
+    # if c1 < c2:
+    for i in range(1, len(expr_value) + 1):
+        if dm[c1][i] > dm[c2][i]:
+            if c1 != i:
+                dm[c1][i] = dm[c2][i]
+                dm[i][c1] = dm[c2][i]
+        dm[c2][i] = dm[i][c2] = float_info.max
+    temp2 = merge_list[c2]
+    temp1 = merge_list[c1]
+    var1 = None
+    var2 = None
+    obtained_length = None
+    if len(temp1) == 0:
+        temp1.append(c1)
+        var1 = c1
+    if len(temp2) == 0:
+        temp2.append(c2)
+        var2 = c2
+    print merge_list.get(c1), "<-----", merge_list.get(c2)
+    merge_list[c1] = temp1 + temp2
+    obtained_length = len(temp1 + temp2)
+    dendrogram_list.append(temp1 + temp2)
+    if var1 is None:
+        var1 = merge_list.get(c1)
+    if var2 is None:
+        var2 = merge_list.get(c2)
+    del merge_list[c2]
+    # print var1, var2, obtained_length, c1, c2, dendrogram_list
+    return dendrogram_list.index(var1), dendrogram_list.index(var2), obtained_length
+    # elif c2 < c1:
+    #     for i in range(1, len(expr_value) + 1):
+    #         if dm[c2][i] > dm[c1][i]:
+    #             if c2 != i:
+    #                 dm[c2][i]=dm[c1][i]
+    #                 dm[i][c2]= dm[c1][i]
+    #         dm[c1][i] = dm[i][c1] = float_info.max
+    #     temp2 = merge_list[c2]
+    #     temp1 = merge_list[c1]
+    #     if len(temp1) == 0:
+    #         temp1.append(c1)
+    #     if len(temp2) == 0:
+    #         temp2.append(c2)
+    #     print merge_list.get(c2), "<---$$$--", merge_list.get(c1)
+    #     merge_list[c2] = temp2 + temp1
+    #     dendrogram_list.append(temp2 + temp1)
+    #     del merge_list[c1]
 
+def generate_dendrogram(Z):
+    np.set_printoptions(precision=5, suppress=True)
+    plt.figure(figsize=(25, 10))
+    plt.title('Hierarchical Clustering Dendrogram')
+    plt.xlabel('sample index')
+    plt.ylabel('distance')
+    result = np.array(Z)
+    dendrogram(
+        result,
+        leaf_rotation=90.,  # rotates the x axis labels
+        leaf_font_size=8.,
+    )
+    plt.show()
+
+
+def generate_graph():
+    np.set_printoptions(precision=5, suppress=True)
+    np.random.seed(4711)  # for repeatability of this tutorial
+    a = np.random.multivariate_normal([10, 0], [[3, 1], [1, 4]], size=[100,])
+    b = np.random.multivariate_normal([0, 20], [[3, 1], [1, 4]], size=[50,])
+    X = np.concatenate((a, b),)
+    # X = np.concatenate()
+    print X
+    print "shape of X is"
+    print X.shape  # 150 samples with 2 dimensions
+    plt.scatter(X[:,0], X[:,1])
+    #plt.show()
+    Z = linkage(X, 'single')
+    print "Z value is"
+    print type(Z)
+    print type(Z[0])
+    print Z
+    # idxs = [33, 68, 62]
+    # plt.figure(figsize=(10, 8))
+    # plt.scatter(X[:,0], X[:,1])  # plot all points
+    # plt.scatter(X[idxs,0], X[idxs,1], c='r')  # plot interesting points in red again
+    # plt.show()
+    # idxs = [15, 69, 41]
+    # plt.scatter(X[idxs,0], X[idxs,1], c='y')
+    plt.figure(figsize=(25, 10))
+    plt.title('Hierarchical Clustering Dendrogram')
+    plt.xlabel('sample index')
+    plt.ylabel('distance')
+    dendrogram(
+        Z,
+        leaf_rotation=90.,  # rotates the x axis labels
+        leaf_font_size=8.,  # font size for the x axis labels
+    )
+    plt.show()
 
 def run():
     options = get_options()
@@ -82,6 +145,11 @@ def run():
     no_of_clusters = options.no_of_clusters
     l = len(expr_value)
     distance_matrix = [[0 for col in range(l + 2)] for row in range(l + 2)]
+    dendogram_list = []
+    dendogram_matrix = []
+    # dendogram_list.append(None)
+    for i in range(1, l + 1):
+        dendogram_list.append(i)
     # print expr_value[517]
     for i in range(1, l + 1):
         for j in range(1, l + 1):
@@ -98,24 +166,34 @@ def run():
         merge_list[i + 1] = list()
     count = 1
     while len(merge_list) > no_of_clusters:
-        min = float_info.max
+        min_value = float_info.max
         cluster1 = 0
         cluster2 = 0
         for i in range(1, l + 1):
             for j in range(i + 1, l + 1):
-                if distance_matrix[i][j] < min:
-                    min = distance_matrix[i][j]
+                if distance_matrix[i][j] < min_value:
+                    min_value = distance_matrix[i][j]
                     cluster1 = i
                     cluster2 = j
         # print count
         count += 1
-        update(distance_matrix, cluster1, cluster2, expr_value, merge_list)
+        var1, var2, obtained_length = update(distance_matrix, cluster1, cluster2, expr_value, merge_list, dendogram_list)
+        temp_list = [var1, var2, min_value, obtained_length]
+        dendogram_matrix.append(temp_list)
+    r = []
     for i in merge_list:
-        print i, ":", merge_list[i]
+        # print i, ":", merge_list[i]
+        r.append([np.array(merge_list[i])])
     # print merge_list
     print "done"
     print map_of_true_clusters
-
+    print r
+    # generate_graph(r)
+    print len(dendogram_list), count
+    print dendogram_list
+    print dendogram_matrix
+    generate_dendrogram(dendogram_matrix)
 
 if __name__ == "__main__":
+    # generate_graph()
     run()
