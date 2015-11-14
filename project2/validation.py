@@ -38,6 +38,22 @@ def get_jaccard(ground_truth, our_truth):
     return same / (same + diff)
 
 
+def get_rand(ground_truth, our_truth):
+    same_1 = 0
+    same_0 = 0
+    diff = 0
+    for i in range(1, len(ground_truth)):
+        for j in range(1, len(ground_truth[0])):
+            if ground_truth[i][j] != our_truth[i][j]:
+                diff += 1
+            elif ground_truth[i][j] == 1 and our_truth[i][j] == 1:
+                same_1 += 1
+            elif ground_truth[i][j] == 0 and our_truth[i][j] == 0:
+                same_0 += 1
+
+    return (same_0 + same_1) / (same_0 + same_1 + diff)
+
+
 def find_distance(l1, l2):
     sum_sqrs = 0
     for i in range(len(l1)):

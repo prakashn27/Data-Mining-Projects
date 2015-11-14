@@ -2,6 +2,9 @@ import sys
 import math
 from optparse import OptionParser
 import validation as v
+import matplotlib.mlab as mlab
+import numpy as np
+from matplotlib import pyplot as plt
 
 
 # get points from the text file
@@ -9,6 +12,7 @@ def get_points(fname):
     cluster_no = []
     expr_value = {}
     map_with_true_values = {}
+    map_of_gene_id = {}
     with open(fname) as f:
         for line in f:
             spl = line.split('\t')
@@ -18,12 +22,12 @@ def get_points(fname):
             expressions = map(float, spl[2:])
             expr_value[gene_id] = expressions
             cluster_no.append(0)
+            map_of_gene_id[gene_id] = cluster
             if cluster in map_with_true_values:
                 map_with_true_values[cluster].append(gene_id)
             else:
                 map_with_true_values[cluster] = [gene_id]
-    # cluster_no.append(0)
-    return expr_value, cluster_no, map_with_true_values
+    return expr_value, cluster_no, map_with_true_values, map_of_gene_id
 
 
 def get_euclidean_distance(centroid, point):
@@ -56,8 +60,8 @@ def get_new_centroids(clusters):
 
 def get_options():
     par = OptionParser()
-    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
-    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=5, type='int')
+    par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/iyer.txt")
+    par.add_option('-k', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=8, type='int')
     (options, args) = par.parse_args()
     return options
 
@@ -65,10 +69,9 @@ def get_options():
 def run():
     # fname = "data/cho.txt"
     options = get_options()
-
     fname = options.input
     no_of_clusters = options.no_of_clusters
-    expr_value, cluster_no, map_with_true_values = get_points(fname)
+    expr_value, cluster_no, map_with_true_values, map_of_gene_id = get_points(fname)
     # print expr_value
     # print len(cluster_no)
     # no_of_clusters = 5 #
@@ -128,14 +131,28 @@ def run():
             print "How many Iterations is it taking to compute the cluster:", count
             for id in cluster_and_gene_id:
                 print id + 1, "th cluster with " , str(len(cluster_and_gene_id[id])), " Points"
-            print cluster_and_gene_id
+            # print cluster_and_gene_id
             break
     print "clusters are done"
     output = []
     for i in cluster_and_gene_id:
         output.append(cluster_and_gene_id[i])
-    print "cluster and gene_id"
-    print cluster_and_gene_id
+    # print "cluster and result of genes"
+    # print cluster_and_gene_id
+    result_of_genes = {}
+    for entry in cluster_and_gene_id:
+        for i in cluster_and_gene_id[entry]:
+            result_of_genes[i] = entry + 1
+    f = open('result.txt','w')
+    str_file = ""
+    for i in map_of_gene_id:
+        if map_of_gene_id[i] == result_of_genes[i]:
+            str_file += str(result_of_genes[i]) + "\n"
+        else:
+            str_file += "-1\n"
+    f.write(str_file) # python will convert \n to os.linesep
+    f.close()
+
     # Validation
     # ====================================
     our_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
@@ -146,7 +163,6 @@ def run():
                 our_truth[a[i]][a[j]] = 1
     # print "our truth"
     # print our_truth
-
     ground_truth = [[0 for row in range(len(expr_value) + 1)] for col in range(len(expr_value) + 1)]
     for entry in map_with_true_values:
         temp = map_with_true_values[entry]
@@ -167,9 +183,17 @@ def run():
                 distance_matrix[i][j] = 0.0
     jac = v.get_jaccard(ground_truth, our_truth)
     cor = v.get_corrlation(distance_matrix, our_truth)
-
+    ran = v.get_rand(ground_truth, our_truth)
     print "Jaccard Coefficient is ", jac
     print "Correlation is ", cor
+    print "Rand Index is ", ran
+    # matplotlib.mlab.PCA("result.txt")
+    # np.loadtxt("result.txt")
+    X = np.loadtxt("data/cho.txt")[:,2:]
+    res = a = np.loadtxt('result.txt')
+    mlab_pca = mlab.PCA(X)
+    plt.scatter(mlab_pca.Y[:,0],mlab_pca.Y[:,1], c = res)
+    plt.show()
 
 if __name__ == "__main__":
     run()

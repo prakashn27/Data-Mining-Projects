@@ -3,6 +3,7 @@ from optparse import OptionParser
 from math import sqrt, pow
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage
+import matplotlib.mlab as mlab
 import numpy as np
 import validation as v
 
@@ -11,25 +12,27 @@ import validation as v
 def get_points(fname):
     expr_value = {}
     map_of_clusters = {}
+    map_with_gene_id = {}
     with open(fname) as f:
         for line in f:
             spl = line.split()
             spl[-1] = spl[-1].replace("\r\n", "")
             gene_id = int(spl[0])
             cluster = int(spl[1])
+            map_with_gene_id[gene_id] = cluster
             if cluster in map_of_clusters:
                 map_of_clusters[cluster].append(gene_id)
             else:
                 map_of_clusters[cluster] = [gene_id]
             expressions = map(float, spl[2:])
             expr_value[gene_id] = expressions
-    return expr_value, map_of_clusters
+    return expr_value, map_of_clusters, map_with_gene_id
 
 
 def get_options():
     par = OptionParser()
     par.add_option('-f', '--file', dest='input', help='filename containing clustering data', default="data/cho.txt")
-    par.add_option('-c', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=5, type='int')
+    par.add_option('-c', '--cluster-number', dest='no_of_clusters', help='expansion factor', default=1, type='int')
     (options, args) = par.parse_args()
     return options
 
@@ -142,7 +145,7 @@ def generate_graph():
 
 def run():
     options = get_options()
-    expr_value, map_of_true_clusters = get_points(options.input)
+    expr_value, map_of_true_clusters, map_with_gene_id = get_points(options.input)
     no_of_clusters = options.no_of_clusters
     l = len(expr_value)
     distance_matrix = [[0 for col in range(l + 2)] for row in range(l + 2)]
@@ -229,9 +232,37 @@ def run():
                 distance_matrix[i][j] = 0.0
     jac = v.get_jaccard(ground_truth, our_truth)
     cor = v.get_corrlation(distance_matrix, our_truth)
+    ran = v.get_rand(ground_truth, our_truth)
 
     print "Jaccard Coefficient is ", jac
     print "Correlation is ", cor
+    print "Rand Index is", ran
+
+    result_of_genes = {}
+    count_temp = 1
+    for entry in merge_list:
+        print entry, merge_list[entry]
+        result_of_genes[entry] = count_temp
+        count_temp += 1
+        for i in merge_list[entry]:
+            result_of_genes[i] = entry
+    f = open('result_heirarchical.txt','w')
+    str_file = ""
+
+    print result_of_genes
+    print map_with_gene_id
+    for i in map_with_gene_id:
+        if map_with_gene_id[i] == result_of_genes[i]:
+            str_file += str(result_of_genes[i]) + "\n"
+        else:
+            str_file += "-1\n"
+    f.write(str_file) # python will convert \n to os.linesep
+    f.close()
+    X = np.loadtxt("data/cho.txt")[:,2:]
+    res = np.loadtxt('result_heirarchical.txt')
+    mlab_pca = mlab.PCA(X)
+    plt.scatter(mlab_pca.Y[:,0],mlab_pca.Y[:,1], c = res)
+    plt.show()
 
 
 if __name__ == "__main__":
