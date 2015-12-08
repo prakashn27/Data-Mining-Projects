@@ -1,6 +1,6 @@
 Execution:
 ==========
-
+hw2
 Executing the apriori algorithm using the following command with default support(50) and confidence(70)
 
 python apriori.py -f filename.txt
