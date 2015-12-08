@@ -121,6 +121,7 @@ def driver(trainData):
     for line in trainData:
         line.rstrip('\n')
         if line == "":
+            # check for empty line
             continue
         spl = line.split("\t")
         if float(spl[-1]) == 1:
@@ -129,7 +130,7 @@ def driver(trainData):
             classValueCounts[0] += 1
             
         for count in range(len(spl) - 1):
-            features[count].addValues(spl[count], spl[len(spl) - 1],metaData[count])
+            features[count].addValues(spl[count], spl[-1],metaData[count])
         
     for count in range(totalFeatures):
         if metaData[count] == "float":

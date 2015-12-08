@@ -25,9 +25,9 @@ def initializeWeights(n_in,n_out):
     
     
 def sigmoid(z):
-    
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
+    np.seterr(over='ignore')
     return 1.0 / (1.0 + np.exp(-1.0 * z))
     
     
@@ -404,13 +404,12 @@ predicted_label = nnPredict(w1,w2,validation_data)
 #find the accuracy on Validation Dataset
 print('\n Validation set Accuracy:' + str(100*np.mean((predicted_label == np.double(validation_label)).astype(float))) + '%')
 
-
 predicted_label = nnPredict(w1,w2,test_data)
 
 #find the accuracy on Testing Dataset
 print('\n Test set Accuracy:' + str(100*np.mean((predicted_label == np.double(test_label)).astype(float))) + '%')
 
-t = (n_hidden, w1, w2, lambdaval)
-with open('params.pickle', 'wb') as params:
-	p = pickle.Pickler(params)
-	p.dump(t)
+# t = (n_hidden, w1, w2, lambdaval)
+# with open('params.pickle', 'wb') as params:
+# 	p = pickle.Pickler(params)
+# 	p.dump(t)
